@@ -7,25 +7,44 @@
 `include "pc_register.v"
 `include "ctrl_unit.v"
 `include "adder.v"
-//`include "datamemory"
-
 
 
 module cpu(
-    clock_i,
-    reset_ni,
-    io_input_bus,
-    io_output_bus
+    clk_i,
+    rst_ni,
+     io_sw_i,  
+     io_lcd_o, 
+   io_ledg_o, 
+   io_ledr_o,
+   io_hex0_o,
+   io_hex1_o,
+   io_hex2_o,
+   io_hex3_o,
+   io_hex4_o,
+   io_hex5_o,
+   io_hex6_o,
+   io_hex7_o,
+   pc_debug_o
 );
 parameter XLEN = 32;
-parameter IO_INPUT_BUS_LEN = 14;
-parameter IO_OUTPUT_BUS_LEN = 52;
-parameter IO_BASE_ADDR = 712;
+
 
 // -- Module IO -----------------------------------------------
-input clock_i, reset_ni;
-input [13:0] io_input_bus;      // |13 KEY 10|9 SW 0|
-output [51:0] io_output_bus;    // |51 HEX5 45|44 HEX4 38|37 HEX3 31|30 HEX2 24|23 HEX1 17|16 HEX0 10|9 LED 0|
+input clk_i, rst_ni;
+input [31:0] io_sw_i;
+output  [31:0] io_lcd_o;
+output  [31:0] io_ledg_o;
+output  [31:0] io_ledr_o;
+output  [31:0] io_hex0_o;
+output  [31:0] io_hex1_o;
+output  [31:0] io_hex2_o;
+output  [31:0] io_hex3_o;
+output  [31:0] io_hex4_o;
+output  [31:0] io_hex5_o;
+output  [31:0] io_hex6_o;
+output  [31:0] io_hex7_o;
+output  [31:0]      pc_debug_o;
+
 
 // khai bao
 // control output
@@ -52,8 +71,8 @@ wire [31:0] pc_four;
 pc_register PC(
     .pc_next(nxt_pc),
     .pc(pc),
-    .clock_i(clock_i),
-    .reset_ni(reset_ni)
+    .clock_i(clk_i),
+    .reset_ni(rst_ni)
 );
 adder addpc(
     .a(pc),
@@ -62,7 +81,7 @@ adder addpc(
 );
 always @(*) begin
 	    //pc_four = pc + 32'd4;
-        if(reset_ni)
+        if(rst_ni)
             nxt_pc = 32'd0;
         else
             nxt_pc = (br_sel) ?   alu_data : pc_four ;
@@ -73,8 +92,8 @@ always @(*) begin
 wire [31:0] instr;
 Imem Imem(
    .pc(pc), 
-	.clock_i(clock_i),
-	.reset_ni(reset_ni),
+	.clock_i(clk_i),
+	.reset_ni(rst_ni),
 	.instr(instr)       
 );
 
@@ -164,16 +183,27 @@ always @(*)
 wire [31:0] ld_data;
 
 lsu lsu(
-	 .addr(alu_data),        
+	.addr(alu_data),        
     .mem_mode(mem_mode),      
     .mem_unsigned(mem_unsigned),
-	 .clock_i(clock_i), 
-	 .reset_ni(reset_ni),
-	 .st_data(rs2_data),            
+	.clock_i(clck_i), 
+	.reset_ni(rst_ni),
+	.st_data(rs2_data),            
     .st_en(mem_wren),  
-	 .ld_data(ld_data),
-    .io_input_bus(io_input_bus),
-    .io_output_bus(io_output_bus)
+	.ld_data(ld_data),
+    .io_sw_i(io_sw_i),
+    .io_lcd_o(io_lcd_o),
+    .io_ledg_o(io_ledg_o),
+    .io_ledr_o(io_ledr_o),
+    .io_hex0_o(io_hex0_o),
+    .io_hex1_o(io_hex1_o),
+    .io_hex2_o(io_hex2_o),
+    .io_hex3_o(io_hex3_o),
+    .io_hex4_o(io_hex4_o),
+    .io_hex5_o(io_hex5_o),
+    .io_hex6_o(io_hex6_o),
+    .io_hex7_o(io_hex7_o)
+    
     
 );
 
